@@ -34,20 +34,20 @@ namespace sqLiteTest
     {
       using (IDbConnection db = DBUtils.Factory.Open())
       {
-        if (db.TableExists<trade1>())
-          db.DropAndCreateTable<trade1>();
+        if (db.TableExists<Trade>())
+          db.DropAndCreateTable<Trade>();
         else
-          db.CreateTable<trade1>();
+          db.CreateTable<Trade>();
 
-        if (db.TableExists<stock>())
-          db.DropAndCreateTable<stock>();
+        if (db.TableExists<Stock>())
+          db.DropAndCreateTable<Stock>();
         else
-          db.CreateTable<stock>();
+          db.CreateTable<Stock>();
 
-        if (db.TableExists<account>())
-          db.DropAndCreateTable<account>();
+        if (db.TableExists<Account>())
+          db.DropAndCreateTable<Account>();
         else
-          db.CreateTable<account>();
+          db.CreateTable<Account>();
       }
       MessageBox.Show("Done");
     }
@@ -56,49 +56,33 @@ namespace sqLiteTest
     private void BtnAddData_Click(object sender, EventArgs e)
     {
       DateTime tDate = new DateTime(2020, 7, 1);
-      newTrade("XYZ", "test account", tDate , 12.345f, 100f);
+      newTrade("XYZ", "test Account", tDate , 12.345f, 100f);
     }
 
-    private void newTrade(string Stock, string Account, DateTime tTime, float price, float Qty)
+    private void newTrade(string stock, string account, DateTime tTime, float price, float Qty)
     {
       // fill data
       using (IDbConnection db = DBUtils.Factory.Open())
       {
         long stID = 0;
         long acID = 0;
-        stock stk = new stock();
-        account acc = new account();
-        
-        var ac = db.Select<account>("accName = @acn", new { acn = Account });
-        if (ac.Count >= 1){
-          acID = ac[0].Id;
-          acc = ac[0];
+        Stock stk = new Stock();
+        Account acc = new Account();
+
+        var ac = db.Select<Account>("accName = @acn", new {acn = account}).FirstOrDefault();
+        if (ac == null)
+          return;
+
+        //var st = db.Select<Stock>("Symbol = @symbol", new { symbol = Stock });
+        //var st = ac.stocks.Where("Symbol=@stck", new {stck = stock});
+        var st = ac.stocks.Where(x => x.Symbol == stock).FirstOrDefault();
+        if (st == null) {
+          st = new Stock() {Symbol = stock};
+          db.Insert<Stock>(st);
         }
-        else{
 
-        }
-
-        var st = db.Select<stock>("Symbol = @symbol", new { symbol = Stock });
-        if (st.Count >= 1)
-        {
-          stID = st[0].Id;
-          stk = st[0];
-        }
-        else
-        {
-          stk = new stock()
-          {
-            Symbol = "XYZ",
-            account = ac
-          };
-        };
-
-
-        trade1 tr = new trade1()
-        {
-          tDate = new DateTime(2020, 7, 1),
-          stock = stk,
-        };
+        Trade tr = new Trade() {tDate = new DateTime(2020, 7, 1)};
+        st.trades.Add(tr);
 
         try
         {
@@ -129,13 +113,13 @@ namespace sqLiteTest
         return;
       }
       lbResults.Items.Clear();
-      List<stock> goodStocks = null;
+      List<Stock> goodStocks = null;
       using (IDbConnection db = DBUtils.Factory.Open())
       {
         string queryStr = $"select * from Stock where value>{minV}";
         try
         {
-          goodStocks = db.Select<stock>(queryStr);
+          goodStocks = db.Select<Stock>(queryStr);
         }
         catch (Exception ex)
         {
@@ -143,8 +127,8 @@ namespace sqLiteTest
           return;
         }
       }
-      // foreach (stock s in goodStocks)
-      //  lbResults.Items.Add($"Stock({s.Symbol}) => value({s.account.accName})");
+      // foreach (Stock s in goodStocks)
+      //  lbResults.Items.Add($"Stock({s.Symbol}) => value({s.Account.accName})");
     }
   }
 }

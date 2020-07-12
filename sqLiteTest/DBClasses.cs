@@ -8,40 +8,39 @@ using ServiceStack.DataAnnotations;
 namespace sqLiteTest
 {
 
-  public class trade1
+  public class Trade
   {
-    // trade table
+    // Trade table
     [AutoIncrement]
     [PrimaryKey]
     [Required]
     public long Id { set; get; }
     public DateTime tDate{ set; get; }
-    [Reference]
-    public stock stock { set; get; }
   }
 
-  public class stock
+  public class Stock
   {
-    //parent table (eg stock)
+    //parent table (eg Stock)
     [AutoIncrement]
     [PrimaryKey]
     [Required]
     public long Id { set; get; }
     public string Symbol { set; get; }
     [Reference]
-    public List<account> account { get; set; }
-    //public List<trade> trade { get; set; }
+    public List<Trade> trades { set; get; }
   }
 
-  public class account
+  public class Account
   {
-    //account table
+    //Account table
     [AutoIncrement]
     [PrimaryKey]
     [Required]
     public long Id { set; get; }
     public string accName { set; get; }
     public string accDescription { set; get; }
+    [Reference]
+    public List<Stock> stocks { get; set; }
   }
 }
 
