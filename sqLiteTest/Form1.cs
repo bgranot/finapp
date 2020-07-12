@@ -34,10 +34,10 @@ namespace sqLiteTest
     {
       using (IDbConnection db = DBUtils.Factory.Open())
       {
-        if (db.TableExists<trade>())
-          db.DropAndCreateTable<trade>();
+        if (db.TableExists<trade1>())
+          db.DropAndCreateTable<trade1>();
         else
-          db.CreateTable<trade>();
+          db.CreateTable<trade1>();
 
         if (db.TableExists<stock>())
           db.DropAndCreateTable<stock>();
@@ -55,22 +55,51 @@ namespace sqLiteTest
 
     private void BtnAddData_Click(object sender, EventArgs e)
     {
+      DateTime tDate = new DateTime(2020, 7, 1);
+      newTrade("XYZ", "test account", tDate , 12.345f, 100f);
+    }
+
+    private void newTrade(string Stock, string Account, DateTime tTime, float price, float Qty)
+    {
       // fill data
       using (IDbConnection db = DBUtils.Factory.Open())
       {
-        trade tr = new trade()
+        long stID = 0;
+        long acID = 0;
+        stock stk = new stock();
+        account acc = new account();
+        
+        var ac = db.Select<account>("accName = @acn", new { acn = Account });
+        if (ac.Count >= 1){
+          acID = ac[0].Id;
+          acc = ac[0];
+        }
+        else{
+
+        }
+
+        var st = db.Select<stock>("Symbol = @symbol", new { symbol = Stock });
+        if (st.Count >= 1)
         {
-          tDate = new DateTime(2020, 7, 1),
-          stock = new stock()
+          stID = st[0].Id;
+          stk = st[0];
+        }
+        else
+        {
+          stk = new stock()
           {
             Symbol = "XYZ",
-            account = new account
-            {
-              accName = "X939",
-              accDescription = "Some name"
-            }
-          }
+            account = ac
+          };
         };
+
+
+        trade1 tr = new trade1()
+        {
+          tDate = new DateTime(2020, 7, 1),
+          stock = stk,
+        };
+
         try
         {
           db.Save(tr, references: true);
@@ -79,6 +108,15 @@ namespace sqLiteTest
         {
           MessageBox.Show(ex.ToString());
         }
+
+        //var tracks = db.Select<Track>("Artist = @artist AND Album = @album",
+        //new { artist = "Nirvana", album = "Heart Shaped Box" });
+
+        //db.Save(item);
+        //item.Id //populated with the auto-incremented id
+        //Otherwise you can select the last insert id using:
+        //var itemId = db.Insert(item, selectIdentity: true);
+
       }
     }
 
@@ -105,8 +143,8 @@ namespace sqLiteTest
           return;
         }
       }
-      foreach (stock s in goodStocks)
-        lbResults.Items.Add($"Stock({s.Symbol}) => value({s.account.accName})");
+      // foreach (stock s in goodStocks)
+      //  lbResults.Items.Add($"Stock({s.Symbol}) => value({s.account.accName})");
     }
   }
 }

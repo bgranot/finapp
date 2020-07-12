@@ -8,7 +8,7 @@ using ServiceStack.DataAnnotations;
 namespace sqLiteTest
 {
 
-  public class trade
+  public class trade1
   {
     // trade table
     [AutoIncrement]
@@ -28,9 +28,9 @@ namespace sqLiteTest
     [Required]
     public long Id { set; get; }
     public string Symbol { set; get; }
-    public long tradeId { set; get; }
     [Reference]
-    public account account { set; get; }
+    public List<account> account { get; set; }
+    //public List<trade> trade { get; set; }
   }
 
   public class account
@@ -42,7 +42,6 @@ namespace sqLiteTest
     public long Id { set; get; }
     public string accName { set; get; }
     public string accDescription { set; get; }
-
   }
 }
 
