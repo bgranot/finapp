@@ -157,3 +157,7 @@ namespace sqLiteTest
 }
 
 //https://github.com/ServiceStack/ServiceStack.OrmLite
+//to Push to Github:
+//  select changes ome tab in team explorer) and ADD a COMMENT
+//  dropdown under the comment, select "commit all and push"
+
