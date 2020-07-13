@@ -27,7 +27,8 @@ namespace sqLiteTest
 
     private void Form1_FormClosing(object sender, FormClosingEventArgs e)
     {
-
+      int i = 1;
+      if (i > 0) { };
     }
 
     private void BtnMakeDb_Click(object sender, EventArgs e)
@@ -48,6 +49,11 @@ namespace sqLiteTest
           db.DropAndCreateTable<Account>();
         else
           db.CreateTable<Account>();
+        Account ac = new Account() { accName = "testACC1", accDescription = "test account1" };
+        db.Insert<Account>(ac);
+        ac = new Account() { accName = "testACC2", accDescription = "test account2" };
+        db.Insert<Account>(ac);
+        //db.Save(ac, references: true);
       }
       MessageBox.Show("Done");
     }
@@ -55,11 +61,16 @@ namespace sqLiteTest
 
     private void BtnAddData_Click(object sender, EventArgs e)
     {
-      DateTime tDate = new DateTime(2020, 7, 1);
-      newTrade("XYZ", "test Account", tDate , 12.345f, 100f);
+      DateTime dt = new DateTime(2020, 7, 1);
+      newTrade("XYZ", "testACC1", dt, 12.34f, 100f);
+      dt = new DateTime(2020, 7, 2);
+      newTrade("XYZ", "testACC2", dt, 56.78f, 150f);
+      dt = new DateTime(2020, 7, 3);
+      newTrade("ABC", "testACC1", dt, 9.0f, 250f);
+      MessageBox.Show("Done");
     }
 
-    private void newTrade(string stock, string account, DateTime tTime, float price, float Qty)
+    private void newTrade(string stock, string account, DateTime tTime, float Price, float Qty)
     {
       // fill data
       using (IDbConnection db = DBUtils.Factory.Open())
@@ -73,16 +84,29 @@ namespace sqLiteTest
         if (ac == null)
           return;
 
-        //var st = db.Select<Stock>("Symbol = @symbol", new { symbol = Stock });
-        //var st = ac.stocks.Where("Symbol=@stck", new {stck = stock});
-        var st = ac.stocks.Where(x => x.Symbol == stock).FirstOrDefault();
-        if (st == null) {
-          st = new Stock() {Symbol = stock};
-          db.Insert<Stock>(st);
-        }
 
-        Trade tr = new Trade() {tDate = new DateTime(2020, 7, 1)};
-        st.trades.Add(tr);
+  //   List<FullCustomerInfo> rows = db.Select<FullCustomerInfo>(  // Map results to FullCustomerInfo POCO
+  //   db.From<Customer>()                                         // Create typed Customer SqlExpression
+  //  .LeftJoin<CustomerAddress>()                                 // Implicit left join with base table
+  //  .Join<Customer, Order>((c, o) => c.Id == o.CustomerId)       // Explicit join and condition
+  //  .Where(c => c.Name == "Customer 1")                          // Implicit condition on base table
+  //  .And<Order>(o => o.Cost < 2)                                 // Explicit condition on joined Table
+  //  .Or<Customer, Order>((c, o) => c.Name == o.LineItem));
+
+
+
+        var st = ac.stocks.Where(x => x.Symbol == stock).FirstOrDefault();
+        if (st == null)
+        {
+          st = new Stock() { Symbol = stock, AccountId=ac.Id };
+          ac.stocks.Add(st);
+          stID = db.Insert<Stock>(st);
+        }
+        else
+          stID = st.Id;
+
+        Trade tr = new Trade() {tDate = tTime, price=Price, qty=Qty, StockId = stID };
+        //st.trades.Add(tr);
 
         try
         {
@@ -100,7 +124,6 @@ namespace sqLiteTest
         //item.Id //populated with the auto-incremented id
         //Otherwise you can select the last insert id using:
         //var itemId = db.Insert(item, selectIdentity: true);
-
       }
     }
 

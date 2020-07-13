@@ -10,29 +10,30 @@ namespace sqLiteTest
 
   public class Trade
   {
-    // Trade table
     [AutoIncrement]
-    [PrimaryKey]
+    [PrimaryKey] 
     [Required]
     public long Id { set; get; }
     public DateTime tDate{ set; get; }
+    public long StockId{ set; get; }
+    public float price { get; set; }
+    public float qty { get; set; }
   }
 
   public class Stock
   {
-    //parent table (eg Stock)
     [AutoIncrement]
     [PrimaryKey]
     [Required]
     public long Id { set; get; }
     public string Symbol { set; get; }
     [Reference]
-    public List<Trade> trades { set; get; }
+    public List<Trade> trades { set; get; } = new List<Trade>();
+    public long AccountId { set; get; }
   }
 
   public class Account
   {
-    //Account table
     [AutoIncrement]
     [PrimaryKey]
     [Required]
@@ -40,7 +41,7 @@ namespace sqLiteTest
     public string accName { set; get; }
     public string accDescription { set; get; }
     [Reference]
-    public List<Stock> stocks { get; set; }
+    public List<Stock> stocks { get; set; } = new List<Stock>();
   }
 }
 
